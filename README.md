@@ -11,7 +11,7 @@ An existing `.sqc` file is read and the containing patterns are pseudorandomized
 
 ```python
 S = read_sqc('test.sqc')
-S_perm, S_labels, S_indices = randomize_patterns(S.Patterns,nReps=3,seq_name='S 3x permuted',pseudorandom=True)
+S_perm, S_labels, S_indices = randomize_patterns(S.Patterns, nReps=3, seq_name='3x permuted', pseudorandom=True)
 S_perm.write_sqc('test_perm.sqc')
 ```
 `S_labels` now contains the names in the new order
@@ -25,7 +25,8 @@ Pattern_1, state_vec_1 = calc_random_pattern_exponential(tau=100, tStart=1000, t
 Pattern_composed = compose_Patterns([Pattern_0,Pattern_1], 'composition test', total_duration=7000)
 Pattern_composed.preview_plot()
 ```
-![ ](https://github.com/grg2rsr/RIOlib/screenshot.png  "Example")
+![ ](https://github.com/grg2rsr/RIOlib/blob/master/screenshot.png  "Example")
+
 
 ## Dependencies
 + python `2.7`
