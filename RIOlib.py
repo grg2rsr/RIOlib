@@ -279,6 +279,7 @@ class RIOpattern(object):
         ax.set_ylabel('channel')
         ax.set_yticklabels([])
         ax.set_title(self.name)
+        ax.margins(0.1,0.1)
         pass
         
     def _update(self):
@@ -549,7 +550,7 @@ def States2RIOpulses(state_vec,channel,label='',concentration=''):
 # helpful lib methods
 #==============================================================================
 
-def randomize_patterns(RIOpatterns, nReps, seq_name='', pseudorandom=True):
+def randomize_patterns(RIOpatterns, nReps=1, seq_name='', pseudorandom=True):
     """Randomizes patterns and creates a new sequence of them. Takes each pattern
     present in RIOpatterns and repeats them nReps times.
 
@@ -610,7 +611,7 @@ def compose_Patterns(RIOpatterns,comp_pattern_name,total_duration=None):
 # some pattern generators
 #==============================================================================
 
-def calc_random_pattern_exponential(tau,tStart,tDuration,tTotal,channel,name):
+def calc_random_pattern_exponential(tau,tStart=0,tDuration=1000,tTotal=1000,channel=0,name=''):
     """Calculate a sequence of random state changes with intervals drawn from an
     exponential distribution.
 
@@ -658,7 +659,7 @@ def calc_random_pattern_exponential(tau,tStart,tDuration,tTotal,channel,name):
     return Pattern, state_vec
 
 
-def calc_random_pattern_blocks(tCorr,prob,tStart,tDuration,tTotal,channel,name):
+def calc_random_pattern_blocks(tCorr=100,prob=0.5,tStart=0,tDuration=1000,tTotal=1000,channel=0,name=''):
     """Calculate a sequence of random states with a fixed time length, and a 
     settable probability to be in either state.
 
@@ -759,7 +760,7 @@ if __name__ == '__main__':
     PA = compose_Patterns([P1,P2],'comp')
     S1 = RIOsequence(seq_name='test exp tcorr',Patterns=[P1,P2,PA])
     S2 = RIOsequence(seq_name='test tcorr exp',Patterns=[P2,P1,PA])
-    Sp = randomize_patterns([P1,P2,PA],3,seq_name='permute testing')[0]
+    Sp = randomize_patterns([P1,P2,PA],nReps=3,seq_name='permute testing')[0]
     
     S1.write_sqc('S1.sqc')
     S2.write_sqc('S2.sqc')
@@ -774,6 +775,10 @@ if __name__ == '__main__':
     P6 = RIOpattern(name='pre B', Pulses=[RIOpulse(6,1,0,6000)])
     P8 = RIOpattern(name='trigger',Pulses=[RIOpulse(8,1,1000,50)])
     PC = compose_Patterns([P0,P1,P3,P4,P5,P6,P8],'composition test',total_duration=7000)
+#    PC.preview_plot()
+
+    ### testing vis
+    P0,sv0 = calc_random_pattern_exponential(100,1000,5000,7000,0,'stim exp A')
+    P1,sv1 = calc_random_pattern_exponential(100,1000,5000,7000,1,'stim exp B')
+    PC = compose_Patterns([P0,P1],'composition test',total_duration=7000)
     PC.preview_plot()
-
-
