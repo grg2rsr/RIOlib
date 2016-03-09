@@ -2,7 +2,7 @@
 A small library for programmatically reading, writing and manipulating RIO sequence `.sqc` files.
 
 ## Description
-cRIO is a general purpose TTL communication interface developed by Stefanie Neupert at the University of Konstanz, lab of Christoph Kleineidam. This library provides programmatical access to freely generate different TTL pulse patterns via a object oriented interface based on the same logic as the cRIO (a sequence holds patterns, a pattern consists of pulses). RIOlib provides function to read existing .sqc files, manipulate them, and write them back to disk, as well as freely generate them programmatically.
+cRIO is a general purpose TTL communication interface developed by Stefanie Neupert at the University of Konstanz, lab of Christoph Kleineidam. This library provides programmatical access to freely generate different TTL pulse patterns via a object oriented interface based on the same logic as the cRIO (a sequence holds patterns, a pattern consists of pulses). RIOlib provides functions to read existing `.sqc` files and manipulate them, as well as to generate them from scratch.
 
 ## Examples / Usage
 
