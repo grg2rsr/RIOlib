@@ -21,10 +21,11 @@ Random changes or random triggering is impossible to achieve via the UI. Therefo
 
 ```python
 Pattern_0, state_vec_0 = calc_random_pattern_exponential(tau=100, tStart=1000, tDuration=5000, tTotal=7000, channel=0, name='stim exp A')
-Pattern_1, state_vec_1 = calc_random_pattern_exponential(tau=100, tStart=1000, tDuration=5000, tTotal=7000, channel=0, name='stim exp B')
+Pattern_1, state_vec_1 = calc_random_pattern_exponential(tau=100, tStart=1000, tDuration=5000, tTotal=7000, channel=1, name='stim exp B')
 Pattern_composed = compose_Patterns([Pattern_0,Pattern_1], 'composition test', total_duration=7000)
 Pattern_composed.preview_plot()
 ```
+
 ![ ](https://github.com/grg2rsr/RIOlib/blob/master/screenshot.png  "Example")
 
 

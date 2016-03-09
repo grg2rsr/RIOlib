@@ -9,7 +9,7 @@ The internal logic of the RIO system, that each pulse is part of a pattern, and
 a sequence consists of multiple patterns is reflected in the OO structure of this
 library.
 
-### FIXME include github link
+https://github.com/grg2rsr/RIOlib
 
 @author: 
 ---------------------------------------
