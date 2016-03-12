@@ -9,7 +9,7 @@ The internal logic of the RIO system, that each pulse is part of a pattern, and
 a sequence consists of multiple patterns is reflected in the OO structure of this
 library.
 
-https://github.com/grg2rsr/RIOlib
+RIOhttps://github.com/grg2rsr/RIOlib
 
 @author: 
 ---------------------------------------
@@ -272,7 +272,7 @@ class RIOpattern(object):
         for i,channel in enumerate(channels):
             state_vec = self.calc_states(channel)
             plt.plot(state_vec*0.8 + int(channel))
-            plt.text(100,int(channel)+0.2,int(channel),verticalalignment='center',horizontalalignment='left')
+            plt.text(100,int(channel)+0.4,int(channel),verticalalignment='center',horizontalalignment='left')
             
         ax = plt.gca()
         ax.set_xlabel('Time (ms)')
@@ -550,7 +550,7 @@ def States2RIOpulses(state_vec,channel,label='',concentration=''):
 # helpful lib methods
 #==============================================================================
 
-def randomize_patterns(RIOpatterns, nReps=1, seq_name='', pseudorandom=True):
+def randomize_Patterns(RIOpatterns, nReps=1, seq_name='', pseudorandom=True):
     """Randomizes patterns and creates a new sequence of them. Takes each pattern
     present in RIOpatterns and repeats them nReps times.
 
@@ -746,21 +746,31 @@ if __name__ == '__main__':
     
     ### test reading writing
     print "reading and writing tests"
-    S = read_sqc('tmp.sqc')
-    S.write_sqc('tmp_written.sqc')
-    retcode = os.system('diff -b tmp.sqc tmp_written.sqc')
-    if retcode == 0:
-        print "test passed"
-    else:
-        print "files differ!"
-        
+    examples_path = os.path.join(os.path.dirname(os.path.abspath('__file__')),'examples')
+    S = read_sqc(os.path.join(examples_path,'tmp.sqc'))
+    S.write_sqc(os.path.join(examples_path,'tmp_written.sqc'))
+    # test on disk
+    if os.name == 'posix':
+        print "comparing files on disk"
+        retcode = os.system('diff -b ./examples/tmp.sqc ./examples/tmp_written.sqc')
+        if retcode == 0:
+            print "seqs are identical on disk (ignoring whitespaces)"
+        else:
+            print "files differ!"
+            
+    # test in mem
+    print "comparing seqs in mem"
+    Sr = read_sqc(os.path.join(examples_path,'tmp_written.sqc'))
+    if S._Header + S._Lines == Sr._Header + Sr._Lines:
+        print "seqs are identical in memory"
+    
     ### test random
     P1 = calc_random_pattern_exponential(100,1000,5000,7000,0,'test exp')[0]
     P2 = calc_random_pattern_blocks(100,0.5,1000,5000,7000,1,'test tCorr')[0]
     PA = compose_Patterns([P1,P2],'comp')
     S1 = RIOsequence(seq_name='test exp tcorr',Patterns=[P1,P2,PA])
     S2 = RIOsequence(seq_name='test tcorr exp',Patterns=[P2,P1,PA])
-    Sp = randomize_patterns([P1,P2,PA],nReps=3,seq_name='permute testing')[0]
+    Sp = randomize_Patterns([P1,P2,PA],nReps=3,seq_name='permute testing')[0]
     
     S1.write_sqc('S1.sqc')
     S2.write_sqc('S2.sqc')
