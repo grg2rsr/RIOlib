@@ -107,7 +107,7 @@ class RIOsequence(object):
         ### FIXME 2do!
         pass
         
-    def write_sqc(self,outpath):
+    def write_sqc(self,path):
         """ writes the sequence to an .sqc file.
 
         Parameters
@@ -118,10 +118,20 @@ class RIOsequence(object):
         """
         
         self._update()
-        with open(outpath,'w') as fh:
+        
+        if os.path.splitext(path)[1] == '':
+            # a directory is passed, filename is then seq name
+            path = os.path.join(path,self.seq_name) + '.sqc'
+            
+        # make directory if it doesn't exist
+        if not os.path.exists(os.path.dirname(path)):
+            os.makedirs(os.path.dirname(path))
+        
+        with open(path,'w') as fh:
             for line in self._Header + self._Lines:
                 fh.write(line)
-        print "sequence with name "  + self.seq_name + " written to " + outpath
+                
+        print "sequence with name "  + self.seq_name + " written to " + path
 
     def _update(self):
         """ private method: internal updater """
@@ -380,7 +390,11 @@ def read_sqc(sqc_path):
     
     info = [line.split('\t') for line in lines[:3]]
     
-    name = info[0][1].strip()
+    try:
+        name = info[0][1].strip()
+    except:
+        name = ''
+        
     total_length = int(info[1][1])
     delay_btw_patterns = int(info[2][1])
     
@@ -785,10 +799,10 @@ if __name__ == '__main__':
     P6 = RIOpattern(name='pre B', Pulses=[RIOpulse(6,1,0,6000)])
     P8 = RIOpattern(name='trigger',Pulses=[RIOpulse(8,1,1000,50)])
     PC = compose_Patterns([P0,P1,P3,P4,P5,P6,P8],'composition test',total_duration=7000)
-#    PC.preview_plot()
+    PC.preview_plot()
 
     ### testing vis
     P0,sv0 = calc_random_pattern_exponential(100,1000,5000,7000,0,'stim exp A')
     P1,sv1 = calc_random_pattern_exponential(100,1000,5000,7000,1,'stim exp B')
     PC = compose_Patterns([P0,P1],'composition test',total_duration=7000)
-    PC.preview_plot()
+#    PC.preview_plot()
