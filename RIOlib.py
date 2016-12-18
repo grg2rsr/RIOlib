@@ -564,7 +564,7 @@ def States2RIOpulses(state_vec,channel,label='',concentration=''):
 # helpful lib methods
 #==============================================================================
 
-def randomize_Patterns(RIOpatterns, nReps=1, seq_name='', pseudorandom=True):
+def randomize_Patterns(RIOpatterns, nReps=1, seq_name='', pseudorandom=True, delay_btw_patterns=0):
     """Randomizes patterns and creates a new sequence of them. Takes each pattern
     present in RIOpatterns and repeats them nReps times.
 
@@ -607,7 +607,7 @@ def randomize_Patterns(RIOpatterns, nReps=1, seq_name='', pseudorandom=True):
         rand_inds = sp.random.permutation(range(len(RIOpatterns)) * nReps)
     
     rand_names = [names[i] for i in rand_inds]
-    Seq = RIOsequence(seq_name=seq_name, Patterns=[RIOpatterns[i] for i in rand_inds])
+    Seq = RIOsequence(seq_name=seq_name, Patterns=[RIOpatterns[i] for i in rand_inds], delay_btw_patterns=delay_btw_patterns)
     
     return Seq, rand_names, rand_inds
 
