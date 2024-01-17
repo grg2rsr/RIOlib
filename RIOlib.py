@@ -29,10 +29,9 @@ import sys
 import os
 
 import pandas as pd
-import scipy as sp
+import numpy as np
 from scipy import stats
 import matplotlib.pyplot as plt
-plt.style.use('bmh')
 
 
 #==============================================================================
@@ -131,7 +130,7 @@ class RIOsequence(object):
             for line in self._Header + self._Lines:
                 fh.write(line)
                 
-        print "sequence with name "  + self.seq_name + " written to " + path
+        print("sequence with name "  + self.seq_name + " written to " + path)
 
     def _update(self):
         """ private method: internal updater """
@@ -259,7 +258,7 @@ class RIOpattern(object):
             the state vector
 
         """
-        state_vec = sp.zeros(self.total_duration,dtype='bool')
+        state_vec = np.zeros(self.total_duration,dtype='bool')
         channel = str(channel)
         for pulse in self.Pulses:
             if pulse.specs['channel'] == channel:
@@ -278,7 +277,7 @@ class RIOpattern(object):
         this opens a matplotlib window that can contain many points, depending
         on the lenght of the pattern. This might take a while.
         """
-        channels = sp.unique([pulse.specs['channel'] for pulse in self.Pulses])
+        channels = np.unique([pulse.specs['channel'] for pulse in self.Pulses])
         for i,channel in enumerate(channels):
             state_vec = self.calc_states(channel)
             plt.plot(state_vec*0.8 + int(channel))
@@ -406,8 +405,8 @@ def read_sqc(sqc_path):
     Data = pd.read_csv(sqc_path,delimiter='\t',skiprows=4,index_col=False)
     
     # split into Patterns
-    pattern_breaks = sp.where(Data['flag (next pattern)'] == 1)[0] # new patterns start indices
-    pattern_breaks = sp.concatenate((pattern_breaks,[Data.shape[0]])) # for indexing last pattern
+    pattern_breaks = np.where(Data['flag (next pattern)'] == 1)[0] # new patterns start indices
+    pattern_breaks = np.concatenate((pattern_breaks,[Data.shape[0]])) # for indexing last pattern
     
     # loop over patterns
     for i in range(len(pattern_breaks)-1):
@@ -447,7 +446,7 @@ def state_vec2change_times(state_vec):
     
     
     """
-    change_times = sp.where(sp.absolute(sp.diff(state_vec)) == 1)[0]
+    change_times = np.where(np.absolute(np.diff(state_vec)) == 1)[0]
     return change_times
 
 
@@ -473,16 +472,16 @@ def change_times2state_vec(change_times,total_time,initial_state='low'):
         the state vector
     """
     
-    state_vec = sp.zeros(total_time)
+    state_vec = np.zeros(total_time)
     
     # cast if not array
-    if type(change_times) != sp.ndarray:
-        change_times = sp.array(change_times)
+    if type(change_times) != np.ndarray:
+        change_times = np.array(change_times)
     
     # deconstruct, always pairs of two if even, thats all, if uneven, add one at end
     if len(change_times) % 2 == 1:
         # append the last timepoint if last pulse doesn't end
-        change_times = sp.concatenate((change_times,[total_time]))
+        change_times = np.concatenate((change_times,[total_time]))
         
     # deconstruct into pulses
     for i in range(0,len(change_times),2):
@@ -490,7 +489,7 @@ def change_times2state_vec(change_times,total_time,initial_state='low'):
     
     state_vec = state_vec.astype('bool')
     if initial_state == 'high':
-        state_vec = sp.logical_not(state_vec)
+        state_vec = np.logical_not(state_vec)
         
     return state_vec
 
@@ -532,16 +531,16 @@ def States2RIOpulses(state_vec,channel,label='',concentration=''):
         last_state = 'low'
 
     # to change times
-    change_times = sp.where(sp.absolute(sp.diff(state_vec)) == 1)[0] + 1 
+    change_times = np.where(np.absolute(np.diff(state_vec)) == 1)[0] + 1 
     
     # add additional
-    change_times = sp.concatenate((change_times,[total_time]))
+    change_times = np.concatenate((change_times,[total_time]))
     
     if initial_state == 'high':
-        change_times = sp.concatenate(([0],change_times))
+        change_times = np.concatenate(([0],change_times))
         
     if last_state == 'high':
-        change_times = sp.concatenate((change_times,[total_time + 1]))
+        change_times = np.concatenate((change_times,[total_time + 1]))
     
     if last_state == 'high': 
         nPulses = (len(change_times)) / 2
@@ -601,10 +600,10 @@ def randomize_Patterns(RIOpatterns, nReps=1, seq_name='', pseudorandom=True, del
     names = [RIOpattern.name for RIOpattern in RIOpatterns]
     
     if pseudorandom:
-        rand_inds = sp.concatenate([sp.random.permutation(len(RIOpatterns)) for i in range(nReps)])
+        rand_inds = np.concatenate([np.random.permutation(len(RIOpatterns)) for i in range(nReps)])
     
     else:
-        rand_inds = sp.random.permutation(range(len(RIOpatterns)) * nReps)
+        rand_inds = np.random.permutation(list(range(len(RIOpatterns))) * nReps)
     
     rand_names = [names[i] for i in rand_inds]
     Seq = RIOsequence(seq_name=seq_name, Patterns=[RIOpatterns[i] for i in rand_inds], delay_btw_patterns=delay_btw_patterns)
@@ -659,14 +658,14 @@ def calc_random_pattern_exponential(tau,tStart=0,tDuration=1000,tTotal=1000,chan
     
     # a little ugly but guarantees to run
     change_times = [0]
-    while sp.cumsum(change_times)[-1] < tDuration:
+    while np.cumsum(change_times)[-1] < tDuration:
         change_times.append(stats.distributions.expon.rvs(scale=tau))
     
-    change_times = sp.cumsum(change_times[1:-1]).astype('int32') + tStart
+    change_times = np.cumsum(change_times[1:-1]).astype('int32') + tStart
     
     # to make sure it ends latest at tStart+tDuration
     if len(change_times) % 2 == 1:
-        change_times = sp.concatenate((change_times,[tStart+tDuration]))
+        change_times = np.concatenate((change_times,[tStart+tDuration]))
     
     state_vec = change_times2state_vec(change_times,tTotal)
     Pattern = RIOpattern(name=name, Pulses=States2RIOpulses(state_vec,channel), total_duration=tTotal)
@@ -710,17 +709,17 @@ def calc_random_pattern_blocks(tCorr=100,prob=0.5,tStart=0,tDuration=1000,tTotal
     """
     
     nBlocks = int(tDuration / tCorr)
-    Pattern = (sp.rand(nBlocks) < prob).astype('float32')
-    state_vec = sp.repeat(Pattern,tCorr)
+    Pattern = (np.rand(nBlocks) < prob).astype('float32')
+    state_vec = np.repeat(Pattern,tCorr)
     
     # acount for rounding errors
     if state_vec.shape[0] < tDuration:
-        state_vec = sp.pad(state_vec,(0,tDuration - state_vec.shape[0]), mode='minimum')
+        state_vec = np.pad(state_vec,(0,tDuration - state_vec.shape[0]), mode='minimum')
     else:
         Pattern = Pattern[:tTotal]
     
     # pad to final size
-    state_vec = sp.pad(state_vec, (tStart,tTotal-tStart-tDuration), mode='minimum')
+    state_vec = np.pad(state_vec, (tStart,tTotal-tStart-tDuration), mode='minimum')
     
     Pattern = RIOpattern(name=name, Pulses=States2RIOpulses(state_vec,channel), total_duration=tTotal)
     return Pattern, state_vec
@@ -735,16 +734,16 @@ if __name__ == '__main__':
 
     ### testing programmatic creation    
     # case 1 low low
-    sv1 = sp.array([0,0,0,0,1,1,0,1,0,0],dtype='bool')
+    sv1 = np.array([0,0,0,0,1,1,0,1,0,0],dtype='bool')
     
     # case 2 high low
-    sv2 = sp.array([1,1,0,0,1,1,0,1,0,0],dtype='bool')
+    sv2 = np.array([1,1,0,0,1,1,0,1,0,0],dtype='bool')
     
     # case 3 low high
-    sv3 = sp.array([0,0,1,0,1,1,0,0,1,1],dtype='bool')
+    sv3 = np.array([0,0,1,0,1,1,0,0,1,1],dtype='bool')
     
     # case 4 high high
-    sv4 = sp.array([1,1,0,0,0,1,0,0,1,1],dtype='bool')
+    sv4 = np.array([1,1,0,0,0,1,0,0,1,1],dtype='bool')
     
     state_vecs = [sv1,sv2,sv3,sv4]
     
@@ -752,31 +751,31 @@ if __name__ == '__main__':
     Patterns = [RIOpattern(name='test',Pulses=P,total_duration=10) for P in Pulses]
     S = RIOsequence('test',Patterns=Patterns)
     
-    print "testing all 4 cases sequence creation"
+    print("testing all 4 cases sequence creation")
     for i in range(4):
-        print sp.all(S.Patterns[i].calc_states(0) == state_vecs[i])
-    print "if all True, test passed" 
-    print 
+        print(np.all(S.Patterns[i].calc_states(0) == state_vecs[i]))
+    print("if all True, test passed") 
+    print() 
     
     ### test reading writing
-    print "reading and writing tests"
+    print("reading and writing tests")
     examples_path = os.path.join(os.path.dirname(os.path.abspath('__file__')),'examples')
     S = read_sqc(os.path.join(examples_path,'tmp.sqc'))
     S.write_sqc(os.path.join(examples_path,'tmp_written.sqc'))
     # test on disk
     if os.name == 'posix':
-        print "comparing files on disk"
+        print("comparing files on disk")
         retcode = os.system('diff -b ./examples/tmp.sqc ./examples/tmp_written.sqc')
         if retcode == 0:
-            print "seqs are identical on disk (ignoring whitespaces)"
+            print("seqs are identical on disk (ignoring whitespaces)")
         else:
-            print "files differ!"
+            print("files differ!")
             
     # test in mem
-    print "comparing seqs in mem"
+    print("comparing seqs in mem")
     Sr = read_sqc(os.path.join(examples_path,'tmp_written.sqc'))
     if S._Header + S._Lines == Sr._Header + Sr._Lines:
-        print "seqs are identical in memory"
+        print("seqs are identical in memory")
     
     ### test random
     P1 = calc_random_pattern_exponential(100,1000,5000,7000,0,'test exp')[0]

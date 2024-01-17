@@ -28,11 +28,3 @@ Pattern_composed.preview_plot()
 
 ![ ](https://github.com/grg2rsr/RIOlib/blob/master/screenshot.png  "Example")
 
-
-## Dependencies
-+ python `2.7`
-+ pandas `0.16.0`
-+ scipy `0.13.3`
-+ matplotlib `1.5.1`
-
-all dependencies are met with a standard up-to-date scientific python distributions such as [anaconda](https://www.continuum.io/downloads)  from continuum.io
